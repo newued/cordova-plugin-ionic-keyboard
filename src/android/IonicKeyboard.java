@@ -51,7 +51,7 @@ public class IonicKeyboard extends CordovaPlugin {
         if ("show".equals(action)) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
-                     ((InputMethodManager)getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     //((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
                     callbackContext.success(); // Thread-safe.
                 }
