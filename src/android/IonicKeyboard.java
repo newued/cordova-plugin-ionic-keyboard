@@ -40,8 +40,8 @@ public class IonicKeyboard extends CordovaPlugin {
                     if (v == null) {
                         callbackContext.error("No current focus");
                     } else {
-                        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                        inputManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);//HIDE_IMPLICIT_ONLY  stateUnspecified
+                        inputManager.hideSoftInputFromWindow(v.getWindowToken(),0);
                         callbackContext.success(); // Thread-safe.
                     }
                 }
@@ -50,10 +50,36 @@ public class IonicKeyboard extends CordovaPlugin {
         }
         if ("show".equals(action)) {
             cordova.getThreadPool().execute(new Runnable() {
-                public void run() {
-                    // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                    ((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                    callbackContext.success(); // Thread-safe.
+                   public void run() {
+                    //http://stackoverflow.com/a/7696791/1091751
+                    InputMethodManager inputManager = (InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    View v = cordova.getActivity().getCurrentFocus();
+                        if (v == null) {
+                            callbackContext.error("No current focus");
+                        } else {
+                            int sdkInt = Build.VERSION.SDK_INT;
+                            if (sdkInt >= 11) {
+                                try {
+                                    Class<EditText> cls = EditText.class;
+                                    Method setShowSoftInputOnFocus;
+                                    setShowSoftInputOnFocus = cls.getMethod("setShowSoftInputOnFocus", boolean.class);
+                                    setShowSoftInputOnFocus.setAccessible(true);
+                                    setShowSoftInputOnFocus.invoke(v, false);
+
+                                } catch (SecurityException e) {
+                                    e.printStackTrace();
+                                } catch (NoSuchMethodException e) {
+                                    e.printStackTrace();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                v.setInputType(InputType.TYPE_NULL);
+                            }
+                            // 如果软键盘已经显示，则隐藏
+                            inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);//InputMethodManager.HIDE_NOT_ALWAYS
+                            callbackContext.success(); // Thread-safe.
+                        }
                 }
             });
             return true;
