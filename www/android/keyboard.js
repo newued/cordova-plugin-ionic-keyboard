@@ -43,10 +43,12 @@ Keyboard.hideFormAccessoryBar = Keyboard.hideKeyboardAccessoryBar = function (hi
 };
 
 Keyboard.hide = function () {
+    console.log('调用了Keyboard.hide');
     exec(null, null, "Keyboard", "hide", []);
 };
 
 Keyboard.show = function () {
+    console.log('调用了Keyboard.show');
     exec(null, null, "Keyboard", "show", []);
 };
 
